@@ -9,14 +9,28 @@ namespace Block_Chain
 {
     class Program
     {
+        private static Blockchain chain = new Blockchain();
+
         static void Main(string[] args)
         {
-            Blockchain chain = new Blockchain();
-            chain.AddBlock(new Block(3, "08/12/2023", "saturday"));
+            Console.WriteLine("Original Block Chain:");
+            DisplayBlockChain();
+            Console.WriteLine("Modified Block Chain:");
             chain.blocks[3].data = "sunday";
+            DisplayBlockChain();
+            Console.WriteLine("Modified Block Chain with Update:");
             chain.Update(chain.blocks[3]);
-            Console.WriteLine(chain.isValid());
+            DisplayBlockChain();
             Console.ReadLine();
+        }
+
+        public static void DisplayBlockChain()
+        {
+            foreach (Block block in chain.blocks)
+            {
+                Console.WriteLine($"Block <{block.index}> [ data: {block.data}, timeStamp: {block.timeStamp} ]");
+            }
+            Console.WriteLine("Block chain is " + (chain.isValid() ? "valid!" : "not valid!") + Environment.NewLine);
         }
     }
 
@@ -26,19 +40,26 @@ namespace Block_Chain
 
         public Blockchain()
         {
+            // Create first block
             CreateGensisBlock();
-            AddBlock(new Block(1, "08/10/2023", "thursday"));
-            AddBlock(new Block(2, "08/11/2023", "friday"));
+
+            // Add new blocks to chain
+            AddBlock(new Block(1, "08/07/2023", "Monday"));
+            AddBlock(new Block(2, "08/08/2023", "Tuesday"));
+            AddBlock(new Block(3, "08/09/2023", "Wednesday"));
+            AddBlock(new Block(4, "08/10/2023", "Thursday"));
+            AddBlock(new Block(5, "08/11/2023", "Friday"));
+            AddBlock(new Block(6, "08/12/2023", "Saturday"));
         }
 
         public void CreateGensisBlock()
         {
-            blocks.Add(new Block(0, "08/09/2023", "wednesday"));
+            blocks.Add(new Block(0, "08/06/2023", "Sunday"));
         }
 
         public void AddBlock(Block block)
         {
-            block.previousHash = GetLatestBlock().hash;
+            block.previousHash = blocks[blocks.Count - 1].hash;
             block.hash = CalculateHash(block);
             blocks.Add(block);
         }
@@ -54,11 +75,6 @@ namespace Block_Chain
                     blocks[i].hash = CalculateHash(blocks[i]);
                 }
             }
-        }
-
-        public Block GetLatestBlock()
-        {
-            return blocks[blocks.Count - 1];
         }
 
         public bool isValid()
